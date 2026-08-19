@@ -19,7 +19,6 @@ Workspace 3 (Discord / GIMP)  ◄── drag card out of shelf ◄────�
 1. **Idle** — a 6px accent strip on the right screen edge, zero interaction cost.
 2. **Reveal** — hover near the right edge, or trigger via IPC / keybind, and the shelf slides out with spring motion.
 3. **Staged cards** — each dropped item becomes a card with a thumbnail (images), metadata, and drag-out support.
-4. **Auto-collapse** — when the last item is removed, Loom animates away.
 
 ### Card types
 
@@ -86,9 +85,6 @@ omarchy-shell shell call ef-code.loom count ''
 
 - Quickshell 0.3.0+ (Wayland layer-shell support)
 - Qt 6 (qt6-declarative)
-- `wl-copy` (for clipboard operations)
-- `imagemagick` (optional, for image conversion features)
-- `zip` (optional, for archive actions)
 
 ### Local preview
 
@@ -134,13 +130,12 @@ omarchy-loom/
 ├── README.md
 ├── LICENSE                # MIT
 ├── assets/
-│   ├── icon.svg           # Marketplace icon
-│   └── preview.png        # Screenshot (add after first run)
+│   └── icon.svg           # Marketplace icon
 └── qml/
     ├── Loom.qml          # Main PanelWindow + DropArea + IPC + shelf UI
     ├── StagedCard.qml     # Individual card with thumbnail + drag-out
     ├── LoomButton.qml    # Reusable footer button component
-    └── utils.js           # File path, size, clipboard, base64 helpers
+    └── utils.js           # File path, size, and MIME helpers
 ```
 
 ## License

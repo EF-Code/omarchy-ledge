@@ -1,0 +1,9 @@
+# Quickshell runtime logs and cache
+/run/
+*.qslog
+.qmllint_cache/
+
+# Editor / OS artifacts
+*.swp
+*~
+.DS_Store
