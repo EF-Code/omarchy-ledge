@@ -139,6 +139,7 @@ omarchy-loom/
 └── qml/
     ├── Loom.qml          # Main PanelWindow + DropArea + IPC + shelf UI
     ├── StagedCard.qml     # Individual card with thumbnail + drag-out
+    ├── LoomButton.qml    # Reusable footer button component
     └── utils.js           # File path, size, clipboard, base64 helpers
 ```
 
