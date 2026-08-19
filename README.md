@@ -61,7 +61,17 @@ This toggles Loom open/closed via the shell's IPC contract (`toggle <id> <payloa
 
 ## IPC contract
 
-Loom registers an `loom` IPC target. All methods return a string.
+The Omarchy shell exposes two ways to control Loom:
+
+**Shell lifecycle commands** — operate on the plugin ID, work without a custom IPC target:
+
+| Command | Effect |
+|---------|--------|
+| `omarchy-shell shell summon ef-code.loom '{}'` | load + open the shelf |
+| `omarchy-shell shell hide ef-code.loom` | close the shelf |
+| `omarchy-shell shell toggle ef-code.loom '{}'` | toggle open/closed |
+
+**Direct method calls** — Loom registers a `loom` IPC target with these methods:
 
 | Method | Returns | Effect |
 |--------|---------|--------|
@@ -73,11 +83,14 @@ Loom registers an `loom` IPC target. All methods return a string.
 | `clear` | `ok` | remove all unpinned items |
 | `ping` | `ok` | health check |
 
-Direct invocation:
-
 ```bash
+# Toggle via the shell's built-in lifecycle command
 omarchy-shell shell toggle ef-code.loom '{}'
+
+# Call a method on the plugin's IPC target
 omarchy-shell shell call ef-code.loom count ''
+omarchy-shell shell call ef-code.loom state ''
+omarchy-shell shell call ef-code.loom ping ''
 ```
 
 ## Development
@@ -114,14 +127,18 @@ omarchy-shell shell rescanPlugins
   "schemaVersion": 1,
   "id": "ef-code.loom",
   "name": "Loom",
+  "version": "0.1.0",
+  "author": "ef-code",
+  "license": "MIT",
+  "description": "A floating cross-workspace staging shelf for Hyprland.",
   "kinds": ["panel"],
   "keepLoaded": true,
   "entryPoints": { "panel": "qml/Loom.qml" }
 }
 ```
 
-- **kind: `panel`** — a floating surface (not a fullscreen overlay), per the Omarchy shell contract.
-- **keepLoaded: true** — the layer-shell window stays mounted between summons so edge-drag detection works continuously.
+- **kind: `panel`** — a persistent or summoned floating window, per the Omarchy shell contract.
+- **keepLoaded: true** — the layer-shell window stays mounted between summons so edge-drag detection works continuously (an officially documented field in the [shell reference](https://github.com/basecamp/omarchy/blob/quattro/shell/README.md)).
 
 ## Project structure
 
@@ -133,7 +150,7 @@ omarchy-loom/
 ├── assets/
 │   └── icon.svg           # Marketplace icon
 └── qml/
-    ├── Loom.qml          # Main PanelWindow + DropArea + IPC + shelf UI
+    ├── Loom.qml          # PanelWindow root: layer-shell surface + DropArea + IPC + shelf UI
     ├── StagedCard.qml     # Individual card with thumbnail + drag-out
     ├── LoomButton.qml    # Reusable footer button component
     └── utils.js           # File path, size, and MIME helpers
