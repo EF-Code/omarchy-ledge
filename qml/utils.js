@@ -1,10 +1,11 @@
 // utils.js — File path, size, and MIME helpers for Loom.
 // Pure JS (no Qt imports) so it can be imported as a JS module.
 //
-// Security note: every external command is spawned via Quickshell's Process
-// with `command` set to a string array. Paths are passed as a single argv
-// element and are NEVER interpolated into a QML source string or a shell.
-// This makes command injection impossible regardless of filename content.
+// Security note: the external command (stat) is spawned via Quickshell's
+// Process with `command` set to a string array. The path is passed as a
+// single argv element and is NEVER interpolated into a QML source string
+// or a shell. This makes command injection impossible regardless of
+// filename content.
 
 .pragma library
 
@@ -31,10 +32,6 @@ function basename(url) {
 
 function isImageUrl(url) {
     return /\.(png|jpe?g|webp|svg|gif|bmp|avif)$/i.test(url)
-}
-
-function isTextSnippet(kind) {
-    return kind === "text"
 }
 
 // ── Size formatting ──────────────────────────────────────────────────────
@@ -70,57 +67,6 @@ function fetchFileSize(url, callback) {
     proc.onFinished = function(exitCode, exitStatus) {
         const bytes = parseInt(out.trim(), 10)
         callback(isNaN(bytes) ? "" : byteLabel(bytes))
-        proc.destroy()
-    }
-    proc.running = true
-}
-
-// ── Clipboard helpers ────────────────────────────────────────────────────
-
-function toFileUri(path) {
-    if (path.startsWith("file://")) return path
-    return "file://" + path
-}
-
-// Copy text to the Wayland clipboard via wl-copy. The text is written to
-// the process's stdin so that even multiline or binary-safe content is
-// handled correctly — wl-copy reads from stdin, not argv.
-function copyToClipboard(text) {
-    const proc = Qt.createQmlObject(
-        "import Quickshell.Io; Process { stdinEnabled: true }",
-        null, "copyToClipboard"
-    )
-    proc.command = ["wl-copy"]
-    proc.onStarted = function() {
-        // write() sends to the process's stdin; wl-copy reads it from there.
-        proc.write(text)
-    }
-    proc.onFinished = function(exitCode, exitStatus) {
-        proc.destroy()
-    }
-    proc.running = true
-}
-
-// ── Base64 data URI for images ───────────────────────────────────────────
-
-function base64DataUri(url, callback) {
-    const path = urlToPath(url)
-    if (!path) { callback(""); return }
-
-    const proc = Qt.createQmlObject(
-        "import Quickshell.Io; Process { stdout: SplitParser {} }",
-        null, "base64DataUri"
-    )
-    proc.command = ["base64", "-w0", path]
-
-    let out = ""
-    proc.stdout.onRead = function(data) { out += data }
-
-    proc.onFinished = function(exitCode, exitStatus) {
-        if (exitCode !== 0) { callback(""); proc.destroy(); return }
-        const ext = path.split(".").pop().toLowerCase()
-        const mime = ext === "svg" ? "image/svg+xml" : "image/" + ext
-        callback("data:" + mime + ";base64," + out.trim())
         proc.destroy()
     }
     proc.running = true
