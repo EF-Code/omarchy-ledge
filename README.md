@@ -19,6 +19,7 @@ Workspace 3 (Discord / GIMP)  ◄── drag card out of shelf ◄────�
 1. **Idle** — a 6px accent strip on the right screen edge, zero interaction cost.
 2. **Reveal** — hover near the right edge, or trigger via IPC / keybind, and the shelf slides out with spring motion.
 3. **Staged cards** — each dropped item becomes a card with a thumbnail (images), metadata, and drag-out support.
+4. **Auto-collapse** — when the last item is removed, Loom animates back to the idle strip.
 
 ### Card types
 
