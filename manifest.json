@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "ef-code.loom",
+  "name": "Loom",
+  "version": "0.1.0",
+  "author": "ef-code",
+  "license": "MIT",
+  "description": "A floating cross-workspace staging shelf for Hyprland. Drop files, images, and text onto the shelf on one workspace, switch, and drag them out into another app.",
+  "kinds": ["panel"],
+  "keepLoaded": true,
+  "entryPoints": {
+    "panel": "qml/Loom.qml"
+  }
+}
