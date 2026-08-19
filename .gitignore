@@ -7,3 +7,5 @@
 *.swp
 *~
 .DS_Store
+
+# Local design notes (not part of the plugin)
