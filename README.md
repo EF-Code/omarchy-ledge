@@ -1,160 +1,135 @@
 # Loom
 
-A floating cross-workspace staging shelf for [Omarchy](https://omarchy.org) / [Hyprland](https://hypr.land), built as a native Quickshell `panel` plugin.
+Loom is a floating cross-workspace staging shelf for [Omarchy](https://omarchy.org) and Hyprland. Drop an asset onto the right screen edge, change workspaces, then drag it from Loom into another application.
 
-Loom lives on the Wayland `wlr-layer-shell` overlay layer, anchored to the right edge of the screen. Because layer-shell surfaces are attached to the output rather than a specific workspace, Loom stays visible and accessible as you cycle through workspaces — letting you stage an asset (image, file, text snippet) on one workspace and drag it out into an app on another.
+It runs as a native Quickshell `panel` plugin on Wayland's overlay layer. The collapsed surface is a 4 px accent strip; entering it with the pointer or a compositor drag expands the shelf without reserving desktop workspace.
 
-## How it works
+## Current feature set
 
-```
-Workspace 1 (Browser / Nemo) ──► drag file to screen edge ──► [Loom shelf]
-                                                                       │
-                                                              (switch workspace)
-                                                                       │
-Workspace 3 (Discord / GIMP)  ◄── drag card out of shelf ◄────────────┘
-```
+- Local files with names and asynchronously collected byte sizes.
+- Images with live thumbnails, intrinsic dimensions, and file sizes.
+- Text snippets with UTF-8 byte and line counts.
+- Web links with a domain badge.
+- Multi-file drops collected into one stack card and dragged back out as a URI list.
+- Native Wayland drag-out with automatic removal after a successful drop.
+- Persistent pins that survive shell restarts and are excluded from bulk clearing.
+- Shell lifecycle and direct IPC methods for keybindings and scripts.
 
-### Visual states
+Hover a card to reveal its contextual actions:
 
-1. **Idle** — a 6px accent strip on the right screen edge, zero interaction cost.
-2. **Reveal** — hover near the right edge, or trigger via IPC / keybind, and the shelf slides out with spring motion.
-3. **Staged cards** — each dropped item becomes a card with a thumbnail (images), metadata, and drag-out support.
-4. **Auto-collapse** — when the last item is removed, Loom animates back to the idle strip.
+- **Copy** copies a path, link, text snippet, or stack path list.
+- **Base64** copies a data URI for local files up to 10 MB.
+- **PNG / JPG** converts an image beside the source and stages the result.
+- **Archive** creates a ZIP beside a same-directory multi-file stack and stages it.
 
-### Card types
-
-- **Images** (PNG, JPG, WebP, SVG, GIF, BMP, AVIF) — live thumbnail preview + size.
-- **Files** — file icon, name, byte size.
-- **Text snippets** — text icon, line/byte count.
-- **Multi-file drops** — each file gets its own card.
-
-### Micro-actions
-
-- 📌 **Pin** — keep a card indefinitely as a persistent scratchpad item.
-- 🧹 **Clear** — purge all unpinned cards.
-- ✕ **Remove** — remove a single card.
-- Drag-out — grab a card to start a native Wayland drag into any target window.
+Pinned cards remain after a successful drag-out. Unpinned cards are removed after the target accepts the drop, and the shelf collapses when its last card is removed.
 
 ## Installation
-
-### From git (recommended)
 
 ```bash
 omarchy plugin add https://github.com/EF-Code/omarchy-loom.git --enable
 ```
 
-### By hand
+To install a local checkout by hand:
 
-1. Clone or copy this repo into `~/.config/omarchy/plugins/ef-code.loom/`.
-2. Rescan: `omarchy-shell shell rescanPlugins`.
-3. Enable: `omarchy plugin enable ef-code.loom`.
+1. Copy it to `~/.config/omarchy/plugins/ef-code.loom/`.
+2. Run `omarchy-shell shell rescanPlugins`.
+3. Run `omarchy plugin enable ef-code.loom`.
+
+Plugins execute unsandboxed inside the long-running Omarchy shell. Review the source before enabling third-party plugins.
 
 ## Keybinding
 
-Add to your Hyprland config (`~/.config/hypr/hyprland.conf`):
+Add this to `~/.config/hypr/hyprland.conf`:
 
 ```conf
 bind = $mainMod, D, exec, omarchy-shell shell toggle ef-code.loom '{}'
 ```
 
-This toggles Loom open/closed via the shell's IPC contract (`toggle <id> <payloadJson>`).
+## IPC
 
-## IPC contract
-
-The Omarchy shell exposes two ways to control Loom:
-
-**Shell lifecycle commands** — operate on the plugin ID, work without a custom IPC target:
-
-| Command | Effect |
-|---------|--------|
-| `omarchy-shell shell summon ef-code.loom '{}'` | load + open the shelf |
-| `omarchy-shell shell hide ef-code.loom` | close the shelf |
-| `omarchy-shell shell toggle ef-code.loom '{}'` | toggle open/closed |
-
-**Direct method calls** — Loom registers a `loom` IPC target with these methods:
-
-| Method | Returns | Effect |
-|--------|---------|--------|
-| `open <payloadJson>` | `ok` | open the shelf |
-| `close` | `ok` | close the shelf |
-| `toggle <payloadJson>` | `ok` | toggle open/closed |
-| `state` | `open` / `closed` | current visibility |
-| `count` | integer string | number of staged items |
-| `clear` | `ok` | remove all unpinned items |
-| `ping` | `ok` | health check |
+Omarchy lifecycle commands operate on the plugin ID:
 
 ```bash
-# Toggle via the shell's built-in lifecycle command
+omarchy-shell shell summon ef-code.loom '{}'
+omarchy-shell shell hide ef-code.loom
 omarchy-shell shell toggle ef-code.loom '{}'
+```
 
-# Call a method on the plugin's IPC target
-omarchy-shell shell call ef-code.loom count ''
+The shell can also call methods on the loaded plugin:
+
+```bash
 omarchy-shell shell call ef-code.loom state ''
+omarchy-shell shell call ef-code.loom count ''
+omarchy-shell shell call ef-code.loom clear ''
+omarchy-shell shell call ef-code.loom stageText 'Remember this'
+omarchy-shell shell call ef-code.loom stageUrl 'file:///path/to/asset.png'
 omarchy-shell shell call ef-code.loom ping ''
 ```
 
+`clear` removes only transient cards. Remove a pinned card explicitly or unpin it first.
+
+## Runtime requirements
+
+Loom requires Quickshell 0.3.0 or newer and Qt 6 on Wayland. Core staging uses standard GNU utilities already expected on Omarchy:
+
+| Feature | Command |
+|---|---|
+| File sizes | `stat` |
+| Code/text file line counts | `awk` |
+| Base64 data URI | `base64` |
+| PNG/JPG conversion | `magick` from ImageMagick |
+| Stack archive | `zip` |
+
+Conversion and archive buttons fail visibly when their optional command is unavailable. Dropped paths are always passed as distinct process arguments; Loom does not interpolate them into shell commands.
+
+Pinned state is written atomically to `loom-state.json` inside `Quickshell.stateDir`. Transient drops are deliberately session-only.
+
 ## Development
 
-### Prerequisites
-
-- Quickshell 0.3.0+ (Wayland layer-shell support)
-- Qt 6 (qt6-declarative)
-
-### Local preview
+The Omarchy entry point is an `Item` that owns a `PanelWindow`, matching the shell's loader contract. Use the standalone wrapper for local preview:
 
 ```bash
-quickshell -p qml/Loom.qml
+quickshell -p qml/Preview.qml
 ```
 
-### Validate the manifest
+Run static and utility checks with:
+
+```bash
+qmllint qml/Loom.qml qml/ShelfView.qml qml/DropCollector.qml qml/StagedCard.qml qml/LoomButton.qml qml/Preview.qml
+QT_QPA_PLATFORM=offscreen /usr/lib/qt6/bin/qmltestrunner -input tests -import qml
+```
+
+On Omarchy, validate the manifest and reload an installed development copy with:
 
 ```bash
 omarchy plugin validate .
-```
-
-### Hot reload
-
-When installed under `~/.config/omarchy/plugins/`, saving any file reloads the plugin automatically. Force a rescan with:
-
-```bash
 omarchy-shell shell rescanPlugins
 ```
 
-## Plugin manifest
+## Structure
 
-```json
-{
-  "schemaVersion": 1,
-  "id": "ef-code.loom",
-  "name": "Loom",
-  "version": "0.1.0",
-  "author": "ef-code",
-  "license": "MIT",
-  "description": "A floating cross-workspace staging shelf for Hyprland.",
-  "kinds": ["panel"],
-  "keepLoaded": true,
-  "entryPoints": { "panel": "qml/Loom.qml" }
-}
-```
-
-- **kind: `panel`** — a persistent or summoned floating window, per the Omarchy shell contract.
-- **keepLoaded: true** — the layer-shell window stays mounted between summons so edge-drag detection works continuously (an officially documented field in the [shell reference](https://github.com/basecamp/omarchy/blob/quattro/shell/README.md)).
-
-## Project structure
-
-```
+```text
 omarchy-loom/
-├── manifest.json          # Plugin metadata + entrypoint
-├── README.md
-├── LICENSE                # MIT
-├── assets/
-│   └── icon.svg           # Marketplace icon
+├── manifest.json
+├── assets/icon.svg
+├── tests/tst_utils.qml
 └── qml/
-    ├── Loom.qml          # PanelWindow root: layer-shell surface + DropArea + IPC + shelf UI
-    ├── StagedCard.qml     # Individual card with thumbnail + drag-out
-    ├── LoomButton.qml    # Reusable footer button component
-    └── utils.js           # File path, size, and MIME helpers
+    ├── Loom.qml          # Host lifecycle, model, persistence, processes, window
+    ├── ShelfView.qml      # Shelf layout and card list
+    ├── DropCollector.qml  # Compositor drag/drop boundary
+    ├── StagedCard.qml     # Preview, drag-out, pin and micro-actions
+    ├── LoomButton.qml
+    ├── Preview.qml        # Standalone development host
+    └── utils.js           # Pure URL, text, MIME and output-path helpers
 ```
+
+## Known integration boundaries
+
+- A layer-shell surface cannot see a drag before the compositor moves it into the 4 px edge target.
+- The current build creates one panel surface; multi-monitor placement needs verification in Omarchy before claiming per-output behavior.
+- Stack archiving is intentionally limited to local items sharing one parent directory.
+- URL cards display a domain badge but do not fetch favicons, avoiding an automatic third-party network request.
 
 ## License
 
