@@ -38,6 +38,14 @@ To install a local checkout by hand:
 
 Plugins execute unsandboxed inside the long-running Omarchy shell. Review the source before enabling third-party plugins.
 
+## Removal
+
+```bash
+omarchy plugin remove ef-code.loom
+```
+
+The Omarchy plugin manager disables and unloads Loom before removing its checkout.
+
 ## Keybinding
 
 Add this to `~/.config/hypr/hyprland.conf`:
