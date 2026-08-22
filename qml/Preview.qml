@@ -1,7 +1,7 @@
 import Quickshell
 
-// Standalone development host. Omarchy loads Loom.qml itself; this wrapper is
-// only for running the plugin directly during development.
+// Standalone development host. Omarchy loads BarWidget.qml from the manifest;
+// this wrapper is only for quick local previewing with a fake bar omitted.
 ShellRoot {
-    Loom { }
+    BarWidget { }
 }
