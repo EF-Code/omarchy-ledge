@@ -1,0 +1,38 @@
+name: Loom checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  model-and-manifest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node scripts/validate-plugin.mjs
+      - run: node scripts/check-qml.mjs
+      - run: node scripts/test-model.mjs
+      - run: bash -n bin/omarchy-loom
+
+  shellcheck:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: './bin'
+
+  qml:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Explain Omarchy-only gates
+        run: |
+          echo "qmllint, qmltestrunner, and omarchy plugin validation run in the Omarchy development environment."
+          echo "See docs/testing.md for the exact local commands and evidence requirements."
