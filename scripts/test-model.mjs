@@ -30,18 +30,6 @@ assert.equal(parsed.version, 2)
 assert.equal(parsed.items.length, 6)
 assert.equal(parsed.items[0].name, "hello world.txt")
 
-const legacy = JSON.stringify({ version: 1, items: [
-  { itemId: "old-a", kind: "file", url: "file:///tmp/a.txt", name: "a.txt", pinned: true },
-  { itemId: "bad", kind: "file", url: "file://remote/nope" },
-  { itemId: "old-stack", kind: "stack", urlsJson: JSON.stringify(["file:///tmp/a", "file:///tmp/b"]) },
-  { itemId: "duplicate", kind: "file", url: "file:///tmp/a.txt" }
-] })
-const migrated = Utils.migrateLegacy(legacy, now)
-assert.equal(migrated.state.version, 2)
-assert.equal(migrated.state.items.length, 2)
-assert.equal(migrated.state.items[0].onCanvas, true)
-assert.equal(migrated.skipped, 2)
-
 const ordered = [note, file, url, text].map((item, index) => ({ ...item, onCanvas: true, inInbox: false, z: index + 1 }))
 assert.equal(Utils.itemOrder(ordered, [url.itemId])[0].itemId, url.itemId)
 assert.match(Utils.promptForItems("Demo", ordered, []), /# Context from Loom/)

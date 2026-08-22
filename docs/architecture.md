@@ -25,8 +25,8 @@ an exact-size `PanelWindow` anchored to the clicked `WidgetButton`.
 State is version 2 at `<Quickshell.stateDir>/omarchy-loom/loom.json`, written
 by atomic `FileView` writes. A card stores a reference, metadata, bounded text,
 and finite geometry; transient selection/editing/drag state is not persisted.
-URLs are never fetched. Legacy `loom-state.json` is read only when no valid
-Loom state exists, converted to a deterministic canvas grid, and never deleted.
+URLs are never fetched. When no valid Loom state exists, the board starts empty
+and only Loom-owned state is written.
 
 The plugin runs unsandboxed in `omarchy-shell`, so untrusted paths and text are
 kept away from shell strings. Metadata, directory creation, and attachment

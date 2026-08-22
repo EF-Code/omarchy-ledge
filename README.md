@@ -13,15 +13,14 @@ bar position that opened it.
 
 ## Why Loom
 
-Loom solved the cross-workspace drop problem with a right-edge shelf. Loom
-keeps that proven intake path but adds a persistent board and explicit context
-packaging. The board stores references and plain text locally; it never fetches
-URLs, calls a model, uploads data, or records clipboard history.
+The bar-owned intake path keeps drops available across workspaces while adding
+a persistent board and explicit context packaging. The board stores references
+and plain text locally; it never fetches URLs, calls a model, uploads data, or
+records clipboard history.
 
 ## Install
 
-The current repository URL is still `omarchy-loom`; its manifest installs the
-plugin as `ef-code.loom`:
+The repository installs the plugin as `ef-code.loom`:
 
 ```bash
 omarchy plugin add https://github.com/EF-Code/omarchy-loom.git --enable --yes
@@ -100,10 +99,9 @@ Loom writes version 2 state atomically below
 the session's XDG state configuration. Exports are created below the private
 `<Quickshell.stateDir>/omarchy-loom/exports/` directory.
 
-On first start, Loom reads the current `loom-state.json` beside the new state
-location when no valid Loom state exists. Valid legacy cards are placed on a
-deterministic canvas grid, the new state is written, and the legacy file is
-left untouched. Loom never imports `bylund.loom` state.
+On first start, Loom creates an empty board when no valid state exists. State
+files are versioned and written atomically; no other plugin's data is read or
+modified.
 
 Files and URLs are references. Text and notes are stored locally with bounded
 size. Exports copy only eligible local files, cap each attachment at 20 MiB
@@ -146,7 +144,7 @@ rm -f ~/.local/bin/omarchy-loom
 
 If you also want to remove Loom-owned local data, remove only
 `<Quickshell.stateDir>/omarchy-loom/` after exporting anything you need. Do
-not remove `loom-state.json`, other plugin directories, or `shell.json`.
+not remove other plugin directories or `shell.json`.
 
 ## Structure
 
@@ -162,10 +160,6 @@ qml/utils.js               pure model, migration, prompt, and export helpers
 bin/omarchy-loom            argv-safe CLI front end
 ```
 
-## Attribution and license
+## License
 
-The anchored popup and bar-widget interaction adapt patterns from Andreas
-Bylund's MIT-licensed `omarchy-loom` at commit
-``. See
-[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md). Loom is MIT licensed; see
-[`LICENSE`](LICENSE).
+Loom is MIT licensed; see [`LICENSE`](LICENSE).

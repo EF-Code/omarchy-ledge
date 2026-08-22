@@ -43,20 +43,6 @@ TestCase {
         compare(state.board.title, "Board")
     }
 
-    function test_migration_and_prompt() {
-        var raw = JSON.stringify({ version: 1, items: [
-            { itemId: "a", kind: "file", url: "file:///tmp/a.txt", name: "a.txt" },
-            { itemId: "bad", kind: "file", url: "file://remote/nope" },
-            { itemId: "n", kind: "text", text: "café\nnext" }
-        ] })
-        var result = Utils.migrateLegacy(raw, 20)
-        compare(result.state.items.length, 2)
-        verify(result.state.items[0].onCanvas)
-        var prompt = Utils.promptForItems("Board", result.state.items, [])
-        verify(prompt.indexOf("# Context from Loom") >= 0)
-        verify(prompt.indexOf("café") >= 0)
-    }
-
     function test_stacks_exports_and_operations() {
         var stack = Utils.newStackCard(["file:///tmp/a.png", "file:///tmp/b.txt"], 10, 0)
         stack.inInbox = false

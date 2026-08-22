@@ -275,31 +275,6 @@ function hasVersion2State(raw) {
     if (!asString(raw).trim()) return false
     try { return !!(JSON.parse(raw) && JSON.parse(raw).version === STATE_VERSION) } catch (e) { return false }
 }
-function migrateLegacy(raw, now) {
-    var parsed
-    try { parsed = JSON.parse(raw || "{}") } catch (e) { return { items: [], skipped: 1 } }
-    var list = parsed && parsed.version === 1 && Array.isArray(parsed.items) ? parsed.items : []
-    var items = [], seen = {}, skipped = 0
-    for (var i = 0; i < list.length && items.length < MAX_ITEMS; i++) {
-        var old = list[i]
-        if (!old || typeof old !== "object") { skipped++; continue }
-        var item = old.kind === "stack" ? newStackCard(parseUrlList(old.urlsJson || old.urls), now, items.length)
-            : (old.kind === "text" ? newTextCard(old.text, now, items.length) : newFileCard(old.url || old.path, now, items.length))
-        if (!item) { skipped++; continue }
-        item.itemId = stableId(old.itemId, "migrated-" + String(now) + "-" + String(items.length))
-        item.name = displayText(old.name || item.name, 80) || item.name; item.subtitle = asString(old.subtitle) || item.subtitle
-        item.mime = asString(old.mime) || item.mime; item.domain = asString(old.domain) || item.domain
-        item.sizeBytes = finiteNumber(old.sizeBytes, item.sizeBytes); item.sizeLabel = asString(old.sizeLabel) || byteLabel(item.sizeBytes)
-        item.dimensions = asString(old.dimensions); item.createdAt = finiteNumber(old.timestamp, now + items.length); item.updatedAt = item.createdAt
-        item.inInbox = false; item.onCanvas = true
-        var geometry = safeGeometry({}, items.length)
-        item.x = geometry.x; item.y = geometry.y; item.width = geometry.width; item.height = geometry.height; item.z = geometry.z
-        var identity = cardIdentity(item)
-        if (seen[identity]) { skipped++; continue }
-        seen[identity] = true; items.push(item)
-    }
-    return { state: { version: STATE_VERSION, board: { title: "Imported Loom context", viewportX: 0, viewportY: 0, zoom: 1 }, items: items }, skipped: skipped }
-}
 function serializeState(board, items) {
     var normalized = normalizeStateObject({ version: STATE_VERSION, board: board || {}, items: items || [] })
     return JSON.stringify(normalized || { version: STATE_VERSION, board: {}, items: [] }, null, 2) + "\n"
@@ -408,7 +383,7 @@ if (typeof module !== "undefined") {
         safeGeometry: safeGeometry, normalizeGeometry: normalizeGeometry, cardIdentity: cardIdentity,
         defaultCard: defaultCard, normalizeCard: normalizeCard, newFileCard: newFileCard, newTextCard: newTextCard,
         newNoteCard: newNoteCard, newStackCard: newStackCard, parseState: parseState, hasVersion2State: hasVersion2State,
-        migrateLegacy: migrateLegacy, serializeState: serializeState, itemOrder: itemOrder, promptForItems: promptForItems,
+        serializeState: serializeState, itemOrder: itemOrder, promptForItems: promptForItems,
         contextJson: contextJson, sanitizeFilename: sanitizeFilename, uniqueFilename: uniqueFilename,
         exportPlan: exportPlan, boolSetting: boolSetting, intSetting: intSetting, stateDirectory: stateDirectory,
         stateFile: stateFile, operationIsNew: operationIsNew, rememberOperation: rememberOperation

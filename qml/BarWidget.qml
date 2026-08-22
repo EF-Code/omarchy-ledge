@@ -29,7 +29,6 @@ Ui.BarWidget {
     readonly property string stateRoot: Quickshell.stateDir
     readonly property string stateDirectory: Utils.stateDirectory(stateRoot)
     readonly property string statePath: Utils.stateFile(stateRoot)
-    readonly property string legacyStatePath: stateRoot + "/loom-state.json"
     readonly property string fontFamily: bar ? bar.fontFamily : Style.font.family
     readonly property bool barVertical: bar ? bar.vertical : false
     readonly property string glyphLoom: "\u{F1294}"
@@ -40,10 +39,8 @@ Ui.BarWidget {
     property bool statusIsError: false
     property bool barDropActive: false
     property bool pointerHasVisited: false
-    property bool restoreStarted: false
     property bool stateReady: false
     property bool directoriesReady: false
-    property bool legacyReadPending: false
     property int operationSequence: 0
     property var recentOperationIds: []
     property var metadataQueue: []
@@ -359,21 +356,12 @@ Ui.BarWidget {
         watchChanges: false
         atomicWrites: true
         printErrors: false
-        onLoaded: root.restorePrimary(text())
-        onLoadFailed: root.restorePrimary("")
-    }
-    FileView {
-        id: legacyFile
-        path: root.legacyStatePath
-        watchChanges: false
-        printErrors: false
-        onLoaded: root.restoreLegacy(text())
-        onLoadFailed: root.restoreLegacy("")
+        onLoaded: root.restoreState(text())
+        onLoadFailed: root.restoreState("")
     }
 
-    function restorePrimary(raw) {
-        if (!directoriesReady || restoreStarted) return
-        restoreStarted = true
+    function restoreState(raw) {
+        if (!directoriesReady || stateReady) return
         if (Utils.hasVersion2State(raw)) {
             var state = Utils.parseState(raw)
             if (state) {
@@ -386,16 +374,7 @@ Ui.BarWidget {
             showStatus("Loom state was malformed; starting with an empty board", true)
             stateReady = true; refreshCounts(); return
         }
-        restoreStarted = false; legacyReadPending = true; legacyFile.reload()
-    }
-    function restoreLegacy(raw) {
-        if (!legacyReadPending || stateReady) return
-        legacyReadPending = false
-        var migrated = Utils.migrateLegacy(raw, Date.now())
-        for (var i = 0; i < migrated.state.items.length; i++) appendModelItem(migrated.state.items[i])
-        boardTitle = migrated.state.board.title
-        refreshCounts(); stateReady = true
-        if (migrated.state.items.length) { persistState(); showStatus("Imported " + migrated.state.items.length + " saved Loom card(s)", false) }
+        stateReady = true; refreshCounts()
     }
 
     Process {
