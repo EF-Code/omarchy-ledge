@@ -1,20 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
   <defs>
-    <linearGradient id="loom-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#89b4fa"/>
-      <stop offset="100%" stop-color="#b4befe"/>
+    <linearGradient id="loom-accent" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#8aadf4"/>
+      <stop offset="1" stop-color="#c6a0f6"/>
     </linearGradient>
   </defs>
-  <!-- Dark background rounded rect -->
-  <rect x="8" y="8" width="112" height="112" rx="24" fill="#1e1e2e" stroke="#313244" stroke-width="2"/>
-  <!-- Shelf bracket (right-edge accent strip) -->
-  <rect x="112" y="28" width="6" height="72" rx="3" fill="url(#loom-grad)"/>
-  <!-- Staged cards -->
-  <rect x="28" y="36" width="72" height="20" rx="6" fill="#313244" stroke="#45475a" stroke-width="1"/>
-  <rect x="28" y="62" width="72" height="20" rx="6" fill="#313244" stroke="#45475a" stroke-width="1"/>
-  <rect x="28" y="88" width="48" height="16" rx="6" fill="#313244" stroke="#45475a" stroke-width="1"/>
-  <!-- Card accents -->
-  <circle cx="38" cy="46" r="4" fill="#89b4fa"/>
-  <circle cx="38" cy="72" r="4" fill="#a6e3a1"/>
-  <circle cx="38" cy="96" r="4" fill="#f9e2af"/>
+  <rect x="8" y="8" width="112" height="112" rx="28" fill="#1e1e2e" stroke="#494d64" stroke-width="3"/>
+  <path d="M28 36h72M28 64h72M28 92h72M36 28v72M64 28v72M92 28v72" stroke="#5b6078" stroke-width="3" opacity=".55"/>
+  <rect x="25" y="25" width="30" height="23" rx="7" fill="url(#loom-accent)"/>
+  <rect x="68" y="55" width="34" height="25" rx="7" fill="#a6da95" opacity=".9"/>
+  <rect x="38" y="85" width="38" height="18" rx="7" fill="#f5c2e7" opacity=".9"/>
+  <circle cx="40" cy="36" r="4" fill="#1e1e2e"/>
+  <circle cx="85" cy="67" r="4" fill="#1e1e2e"/>
+  <circle cx="55" cy="94" r="3" fill="#1e1e2e"/>
 </svg>
