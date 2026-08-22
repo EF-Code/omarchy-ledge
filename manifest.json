@@ -2,13 +2,42 @@
   "schemaVersion": 1,
   "id": "ef-code.loom",
   "name": "Loom",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "ef-code",
   "license": "MIT",
-  "description": "A floating cross-workspace staging shelf for Hyprland. Drop files, images, and text onto the shelf on one workspace, switch, and drag them out into another app.",
-  "kinds": ["panel"],
-  "keepLoaded": true,
+  "description": "A local-first context canvas for files, images, links, notes, and agent-ready context bundles.",
+  "kinds": ["bar-widget"],
   "entryPoints": {
-    "panel": "qml/Loom.qml"
+    "barWidget": "qml/BarWidget.qml"
+  },
+  "barWidget": {
+    "displayName": "Loom",
+    "description": "Drop context onto the bar, arrange it on a private local canvas, and export an agent-ready bundle.",
+    "category": "Productivity",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "defaults": {
+      "autoClose": true,
+      "autoCloseSeconds": 3
+    },
+    "schema": [
+      {
+        "key": "autoClose",
+        "type": "boolean",
+        "label": "Close Loom after the pointer leaves",
+        "defaultValue": true,
+        "description": "Loom remains available from its bar chip and does not reserve desktop space while closed."
+      },
+      {
+        "key": "autoCloseSeconds",
+        "type": "integer",
+        "label": "Seconds before Loom closes",
+        "min": 1,
+        "max": 15,
+        "step": 1,
+        "defaultValue": 3,
+        "description": "The timer pauses while dragging, editing, selecting, or using the canvas."
+      }
+    ]
   }
 }
