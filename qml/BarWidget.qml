@@ -3,17 +3,27 @@ import QtQuick.Controls
 import Quickshell
 import Quickshell.Io
 import qs.Commons
-import qs.Ui
+import qs.Ui as Ui
 import "utils.js" as Utils
 
-// Loom is a bar-owned Panel: the bar chip is always present, while the
+// Loom is a bar-owned BarWidget: the bar chip is always present, while the
 // exact-size popup only maps when the controller is open. One instance exists
 // per monitor; mutations are replayed to every peer through bar.moduleWidgets.
-Panel {
+Ui.BarWidget {
     id: root
 
     moduleName: "ef-code.loom"
-    manageIpc: false
+
+    // BarWidget provides the per-monitor slot, settings, and module registry
+    // contract. Loom owns its own canonical IPC target below, so there is no
+    // second handler to enable here.
+    implicitWidth: button.implicitWidth
+    implicitHeight: button.implicitHeight
+
+    readonly property bool opened: controller.open
+    property bool popoutSwitchClosing: false
+
+    Ui.PanelController { id: controller }
 
     readonly property string version: "0.3.0"
     readonly property string stateRoot: Quickshell.stateDir
@@ -50,7 +60,6 @@ Panel {
     readonly property int canvasCount: canvasItems
     property int inboxItems: 0
     property int canvasItems: 0
-
     ListModel { id: itemModel }
     LoomTheme { id: theme }
 
@@ -338,7 +347,10 @@ Panel {
         id: ensureDirs
         command: ["mkdir", "-p", root.stateDirectory]
         running: false
-        onExited: { root.directoriesReady = exitCode === 0; if (root.directoriesReady) stateFile.reload() }
+        onExited: function(exitCode) {
+            root.directoriesReady = exitCode === 0
+            if (root.directoriesReady) stateFile.reload()
+        }
     }
 
     FileView {
@@ -449,7 +461,7 @@ Panel {
         function ping(): string { return "ok" }
     }
 
-    WidgetButton {
+    Ui.WidgetButton {
         id: button
         anchors.fill: parent
         bar: root.bar

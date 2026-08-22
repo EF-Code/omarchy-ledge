@@ -15,7 +15,7 @@ PanelWindow {
     property Item focusTarget: null
     property int desiredWidth: 880
     property int desiredHeight: 600
-    property int gap: Style.gapsOut
+    property int gap: 0
     property int screenMargin: Style.gapsOut
     property var theme: null
 

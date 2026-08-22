@@ -12,6 +12,9 @@ for (const file of required) {
 }
 const files = required.filter((file) => file.endsWith(".qml")).map((file) => fs.readFileSync(path.join(root, file), "utf8"))
 const joined = files.join("\n")
+const barWidget = fs.readFileSync(path.join(root, "qml/BarWidget.qml"), "utf8")
+if (!barWidget.includes("Ui.BarWidget")) throw new Error("BarWidget.qml must use the current qs.Ui.BarWidget contract")
+if (!barWidget.includes("Ui.WidgetButton")) throw new Error("BarWidget.qml must use the current qs.Ui.WidgetButton contract")
 if (/ef-code\.loom|omarchy-loom|text\s*:\s*["']Loom["']/.test(joined)) throw new Error("runtime QML still contains the old Loom identity")
 if (/sh\s+-c|bash\s+-c|eval\s+/.test(joined)) throw new Error("QML contains a shell interpolation boundary")
 if (!joined.includes("WlrLayershell.namespace: \"omarchy-loom\"")) throw new Error("missing Loom layer namespace")

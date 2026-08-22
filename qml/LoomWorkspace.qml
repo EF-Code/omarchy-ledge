@@ -83,7 +83,7 @@ FocusScope {
                     color: theme ? theme.accent : Color.accent
                     Text {
                         anchors.centerIn: parent
-                        text: "⌘"
+                        text: "L"
                         color: theme ? theme.surface : Color.background
                         font.family: Style.font.family
                         font.bold: true

@@ -6,7 +6,7 @@ an exact-size `PanelWindow` anchored to the clicked `WidgetButton`.
 
 ## Runtime layers
 
-- `qml/BarWidget.qml` extends Omarchy's `qs.Ui.Panel`. It owns the bar chip,
+- `qml/BarWidget.qml` extends Omarchy's current `qs.Ui.BarWidget` contract. It owns the bar chip,
   direct chip drop target, spring timer, lifecycle routing, ListModel, state
   restore/migration, metadata queue, prompt generation, and export controller.
 - `qml/LoomPopup.qml` owns only output selection, bar-relative geometry,
